@@ -15,7 +15,7 @@
   <body onload="setTimeout(() => generate_quest(), 3000)" style="background-color: #3A344B; color: #93a0a1">
     <script type="text/javascript">
       var grammar = {}
-      grammar.origin = ["electrical", "cafeteria", "administration"];
+      grammar.origin = ["electrical", "cafeteria", "administration", "medical", "cargo"];
       grammar.cafeteria = [
       ["Somebody left the plates everywhere ",
       "Go ahead and wash the dishes."],
@@ -68,7 +68,38 @@
       "reorganize the files",
       "backup the emails"
       ];
-      console.log("Final grammar is: " + grammar);
+      grammar.medical = [
+      ["You've broken your arm",
+      "The bandages are",
+      "Make a splint."],
+      ["The latest medical science says",
+      "The ship's med-bay could use blood donations for",
+      "Donate your blood for science"],
+      ["One of your crewmates has the flu, and ",
+      "They have a fever",
+      "Administer a flu shot to the infected crewmate."],
+      ];
+      grammar.medical_tasks = [
+      "make a splint",
+      "donate blood",
+      "give flu shot"
+      ];
+      grammar.cargo = [
+      ["The storage crates are loose",
+      "They've been sliding around",
+      "Latch down the crates to prevent an accident."],
+      ["There is a mouse loose in the storage",
+      "It's been eating ",
+      "Kill that pesky mouse using a shotgun"],
+      ["Someone forgot to propery close the door ",
+      "If it came open, ",
+      "Bolt the door properly before something terrible occurs."],
+      ];
+      grammar.cargo_tasks = [
+      "latch down the crates",
+      "kill that pesky mouse",
+      "bolt the door"
+      ];
 
       var loc = Math.floor(Math.random() * grammar.origin.length);
       var loc_string = grammar.origin[loc];
