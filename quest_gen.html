@@ -12,10 +12,10 @@
 
     <script src="https://badland.io/static/tracery.js" type="text/javascript"></script>
   </head>
-  <body onload="setTimeout(() => generate_quest(), 3000)">
+  <body onload="setTimeout(() => generate_quest(), 3000)" style="background-color: #3A344B; color: #93a0a1">
     <script type="text/javascript">
       var grammar = {}
-      grammar.origin = ["electrical", "cafeteria", "administration"];
+      grammar.origin = ["electrical", "cafeteria", "administration", "medical", "cargo"];
       grammar.cafeteria = [
       ["Somebody left the plates everywhere ",
       "Go ahead and wash the dishes."],
@@ -68,7 +68,38 @@
       "reorganize the files",
       "backup the emails"
       ];
-      console.log("Final grammar is: " + grammar);
+      grammar.medical = [
+      ["You've broken your arm",
+      "The bandages are",
+      "Make a splint."],
+      ["The latest medical science says",
+      "The ship's med-bay could use blood donations for",
+      "Donate your blood for science"],
+      ["One of your crewmates has the flu, and ",
+      "They have a fever",
+      "Administer a flu shot to the infected crewmate."],
+      ];
+      grammar.medical_tasks = [
+      "make a splint",
+      "donate blood",
+      "give flu shot"
+      ];
+      grammar.cargo = [
+      ["The storage crates are loose",
+      "They've been sliding around",
+      "Latch down the crates to prevent an accident."],
+      ["There is a mouse loose in the storage",
+      "It's been eating ",
+      "Kill that pesky mouse using a shotgun"],
+      ["Someone forgot to propery close the door ",
+      "If it came open, ",
+      "Bolt the door properly before something terrible occurs."],
+      ];
+      grammar.cargo_tasks = [
+      "latch down the crates",
+      "kill that pesky mouse",
+      "bolt the door"
+      ];
 
       var loc = Math.floor(Math.random() * grammar.origin.length);
       var loc_string = grammar.origin[loc];
@@ -77,24 +108,38 @@
       var task = grammar[loc_string + "_tasks"][script];
       console.log("User needs to perform: " + task);
 
+      function post_text_to(elem, value) {
+	  var newtext = document.createTextNode(value);
+	  elem.appendChild(newtext);
+	  elem.appendChild(document.createElement("br"));
+      }
+
       function post_text(value) {
 	  var passage = document.getElementById("passage_region");
-	  var newtext = document.createTextNode(value);
-	  passage.appendChild(newtext);
-	  passage.appendChild(document.createElement("br"));
+	  post_text_to(passage, value);
+      }
+
+      function post_block(color, value) {
+	  var passage = document.getElementById("passage_region");
+	  var block = document.createElement("div")
+	  post_text_to(block, value);
+	  block.style = "background-color: " + color + "; padding: 1px 12px 1px 12px";
+	  passage.appendChild(block);
       }
 
       var cur_loc = "cafeteria";
       function print_available_actions() {
-	  post_text("...> Possible Actions:");
-      	  post_text("----");
+	  post_block("#222", "Possible Actions:");
+	  var passage = document.getElementById("passage_region");
+	  var block = document.createElement("div");
 	  for (var i = 0; i < grammar.origin.length; i++) {
-	      post_text("move-to " + grammar.origin[i]);
+	      post_text_to(block, "move-to " + grammar.origin[i]);
 	  }
 	  for (var i = 0; i < grammar[cur_loc].length; i++) {
-	      post_text(grammar[cur_loc + "_tasks"][i]);
+	      post_text_to(block, grammar[cur_loc + "_tasks"][i]);
 	  }
-      	  post_text("----");
+	  block.style = "background-color: #333333; padding: 1px 12px 1px 12px";
+	  passage.appendChild(block);
       }
 
       function request_one_gpt2_sent(prompt, num) {
@@ -128,6 +173,8 @@
 	      reg.appendChild(document.createTextNode(paragraphs[i]));
 	      reg.appendChild(document.createElement("br"));
 	  }
+	  post_block("#222", "You are in the Cafeteria, complete your task to keep your ship operational.");
+	  post_block("#222", "");
 	  print_available_actions();
       }
 
@@ -141,50 +188,50 @@
 
 	  var words = usertext.value.split(" ");
 	  var matches = usertext.value.toLowerCase().includes(task.toLowerCase());
+
+	  post_block("#222", usertext.value);
 	  if (words[0] == "move-to") {
-	      post_text(usertext.value);
 	      if (grammar.origin.includes(words[1])) {
 		  cur_loc = words[1];
-		  post_text("...> moved to " + words[1]);
+		  post_block("#333", "you moved to " + words[1]);
 		  print_available_actions();
 	      }
 	  } else if (matches && cur_loc != loc_string) {
-	      post_text(usertext.value);
-	      post_text("...> You're not in the right place!");
+	      post_block("#61312b", "You're not in the right room! Move-to the correct one.");
 	  } else if (matches && cur_loc == loc_string) {
-	      post_text(usertext.value);
-	      post_text("...> You won!");
+	      post_block("#344B3A", "You won!");
 	      won = true;
 	  } else {
-	      post_text(usertext.value);
-	      post_text("Incorrect action, try something else.");
+	      post_block("#61312b", "Incorrect action, try something else.");
 	  }
 	  usertext.value = "";
 	  return false;
       }
     </script>
 
-    <h1>Welcome to QuestGen</h1>
+    <div>
+      <h1 style="text-align: center">Welcome to QuestGen!</h1>
 
-    <p>
-      QuestGen is an experimental system for generating video game quests. This version uses GPT-2 to expand procedurally generated quest prompts into more inventive story text. Sometimes the quests are simple and predictable, and sometimes they are outlandish and disorganized. It may take a minute or two for the server to respond with your quest.
-    <br><br>
-      You are a crewmate on a spaceship, and will be assigned a task. Move to the correct room and enter the action specified by the quest prompt to win the game! (Hint: look at the last sentence of each quest.)
-    </p>
-    <br>
+      <p>
+	QuestGen is an example game demonstrating procedurally generating video game quests. This version uses GPT-2 to expand quest prompts into more inventive story text. Sometimes the quests are simple and predictable, and sometimes they are outlandish and disorganized. It may take a minute or two for the server to respond with your quest.
+	<br><br>
+	You are a crewmate on a spaceship, and will be assigned a task. Move to the correct room and enter the action specified by the quest prompt to win the game! (Hint: look at the last sentence of each quest.)
+      </p>
+    </div>
 
-    <h3>Your captain has assigned you a task:</h3>
-    <br>
-    <div id="quest_region">waiting for server...</div>
-    <br><hr><br><br>
+    <div style="background-color: #344B3A">
+      <h3 style="background-color: #222; padding: 3px 12px 3px 4px">Your captain has assigned you a task:</h3>
+      <div id="quest_region" style="padding: 0px 12px 0px 12px">waiting for server...</div>
+    </div>
+    <br><hr><br>
     <div id="passage_region"></div>
 
     <br><hr>
     <div id="input_region">
       <form onsubmit="return process_usertext()">
-	<br><br>
-	<input type="button" onclick="return process_usertext()" value="Enter your action:">
-	<input type="text" id="usertext">
+	<br>
+	<input type="button" style="background-color: #222; color: white; border: none; padding: 6px 6px 6px 6px; border-radius: 5px" onclick="return process_usertext()" value="submit">
+	<input type="text" style="background-color: #222; color: white; border: none; padding: 6px 6px 6px 6px; border-radius: 5px" id="usertext" placeholder="Enter your action">
 	<br>
 	<p> Refresh for a new quest </p>
 	<br><br>
