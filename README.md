@@ -2,6 +2,9 @@
 
 [Play the game!](https://badland.io/static/quest_gen.html)
 
+For the project deliverables and a full description of the design
+please see the [project report](https://github.com/amshafer/QuestGen/blob/master/project_report.pdf).
+
 QuestGen is a text generator for video game quests. It uses simple
 grammars to create a plot, and then fleshes out the passage using
 GPT-2 completion.
